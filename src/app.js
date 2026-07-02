@@ -1,12 +1,21 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import authRouter from './modules/auth/auth.routes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
 // Standard middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(cookieParser());
 app.use(express.json());
+
+// Routes
+app.use('/api/v1/auth', authRouter);
 
 // Health check route
 app.get('/api/v1/health', (req, res) => {
