@@ -165,3 +165,115 @@ export const resendVerification = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * Retrieve current user's profile.
+ */
+export const getProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const profile = await authService.getProfile(userId);
+    res.status(200).json({
+      success: true,
+      user: profile
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
+
+/**
+ * Update current user's profile name and/or addresses.
+ */
+export const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const { name, addresses } = req.body;
+    
+    const updatedProfile = await authService.updateProfile(userId, { name, addresses });
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedProfile
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
+
+/**
+ * Add a new address to user profile.
+ */
+export const addAddress = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const addresses = await authService.addAddress(userId, req.body);
+    res.status(200).json({
+      success: true,
+      message: "Address added successfully",
+      addresses
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
+
+/**
+ * Remove an address from user profile.
+ */
+export const removeAddress = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const { addressId } = req.params;
+    const addresses = await authService.removeAddress(userId, addressId);
+    res.status(200).json({
+      success: true,
+      message: "Address removed successfully",
+      addresses
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
+
+/**
+ * Add a product to user's wishlist.
+ */
+export const addToWishlist = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const { productId } = req.body;
+    const wishlist = await authService.addToWishlist(userId, productId);
+    res.status(200).json({
+      success: true,
+      message: "Product added to wishlist successfully",
+      wishlist
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
+
+/**
+ * Remove a product from user's wishlist.
+ */
+export const removeFromWishlist = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const { productId } = req.params;
+    const wishlist = await authService.removeFromWishlist(userId, productId);
+    res.status(200).json({
+      success: true,
+      message: "Product removed from wishlist successfully",
+      wishlist
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    next(err);
+  }
+};
