@@ -176,3 +176,147 @@ export const resendVerificationEmail = async (email) => {
   // TODO: send via Nodemailer/queue
   console.log(`[AUTH] Verification token for ${user.email}: ${token}`);
 };
+
+/**
+ * Finds user by ID and returns profile without sensitive data.
+ * @param {string} userId 
+ * @returns {Promise<object>}
+ */
+export const getProfile = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const userObj = user.toObject();
+  delete userObj.passwordHash;
+  delete userObj.emailVerificationToken;
+  delete userObj.emailVerificationExpires;
+
+  return userObj;
+};
+
+/**
+ * Updates user profile name and/or addresses.
+ * @param {string} userId 
+ * @param {object} updates 
+ * @returns {Promise<object>} Updated user profile
+ */
+export const updateProfile = async (userId, updates) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Update only allowed fields
+  if (updates.name !== undefined) {
+    user.name = updates.name;
+  }
+  if (updates.addresses !== undefined) {
+    user.addresses = updates.addresses;
+  }
+
+  await user.save();
+
+  const userObj = user.toObject();
+  delete userObj.passwordHash;
+  delete userObj.emailVerificationToken;
+  delete userObj.emailVerificationExpires;
+
+  return userObj;
+};
+
+/**
+ * Pushes a new address subdocument to user's addresses array.
+ * @param {string} userId 
+ * @param {object} addressData 
+ * @returns {Promise<Array>} Updated addresses array
+ */
+export const addAddress = async (userId, addressData) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  user.addresses.push(addressData);
+  await user.save();
+
+  return user.addresses;
+};
+
+/**
+ * Removes an address subdocument by ID.
+ * @param {string} userId 
+ * @param {string} addressId 
+ * @returns {Promise<Array>} Updated addresses array
+ */
+export const removeAddress = async (userId, addressId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const address = user.addresses.id(addressId);
+  if (!address) {
+    const error = new Error('Address not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  user.addresses.pull(addressId);
+  await user.save();
+
+  return user.addresses;
+};
+
+/**
+ * Adds a product to the user's wishlist.
+ * @param {string} userId 
+ * @param {string} productId 
+ * @returns {Promise<Array>} Updated wishlist array
+ */
+export const addToWishlist = async (userId, productId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // NOTE: Once the Product model exists, we should validate that the productId actually exists in the products collection.
+  const exists = user.wishlist.some(id => id.toString() === productId.toString());
+  if (!exists) {
+    user.wishlist.push(productId);
+    await user.save();
+  }
+
+  return user.wishlist;
+};
+
+/**
+ * Removes a product from the user's wishlist.
+ * @param {string} userId 
+ * @param {string} productId 
+ * @returns {Promise<Array>} Updated wishlist array
+ */
+export const removeFromWishlist = async (userId, productId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  user.wishlist = user.wishlist.filter(id => id.toString() !== productId.toString());
+  await user.save();
+
+  return user.wishlist;
+};
