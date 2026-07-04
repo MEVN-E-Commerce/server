@@ -7,6 +7,9 @@ import cartRouter from './modules/cart/cart.routes.js';
 import orderRouter from './modules/orders/order.routes.js';
 import paymentsRouter from './modules/payments/payments.routes.js';
 import adminRouter from './modules/admin/admin.routes.js';
+import sellerRouter from './modules/sellers/seller.routes.js';
+import bonusRouter from './modules/bonus/bonus.routes.js';
+import { checkoutWrapperMiddleware } from './modules/bonus/checkout.wrapper.js';
 import { stripeWebhook } from './modules/payments/payments.controller.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
@@ -28,9 +31,11 @@ app.use(express.json());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', productsRouter);
 app.use('/api/v1/cart', cartRouter);
-app.use('/api/v1/orders', orderRouter);
+app.use('/api/v1/orders', checkoutWrapperMiddleware, orderRouter);
 app.use('/api/v1/payments', paymentsRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/sellers', sellerRouter);
+app.use('/api/v1/bonus', bonusRouter);
 
 
 // Health check route
