@@ -126,7 +126,14 @@ const orderSchema = new mongoose.Schema({
         default: ''
       }
     }
-  ]
+  ],
+  shippingInfo: {
+    trackingNumber: { type: String, trim: true, default: '' },
+    courier: { type: String, trim: true, default: '' },
+    estimatedDelivery: { type: Date, default: null },
+    deliveryDate: { type: Date, default: null },
+    notes: { type: String, trim: true, default: '' }
+  }
 }, {
   timestamps: true
 });

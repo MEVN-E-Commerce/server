@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'seller', 'admin'],
     default: 'customer'
   },
+  sellerStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'restricted'],
+    default: 'approved'
+  },
   isVerified: {
     type: Boolean,
     default: false
