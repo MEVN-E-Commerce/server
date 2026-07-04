@@ -321,12 +321,12 @@ export const adminUpdateOrderStatus = async (id, status, note) => {
   });
   await order.save();
 
-  // Enqueue status email
+  // Send status email directly
   try {
-    const { enqueueOrderStatusUpdate } = await import('../../queues/email.queue.js');
-    await enqueueOrderStatusUpdate(order._id.toString());
-  } catch (queueErr) {
-    console.error('[Admin] Failed to enqueue order status email:', queueErr.message);
+    const { sendOrderStatusUpdate } = await import('../../services/email.service.js');
+    await sendOrderStatusUpdate(order._id.toString());
+  } catch (emailErr) {
+    console.error('[Admin] Failed to send order status email:', emailErr.message);
   }
 
   return order.toObject();

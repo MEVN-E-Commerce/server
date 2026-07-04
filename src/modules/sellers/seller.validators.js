@@ -7,7 +7,7 @@ export const validateRegisterSeller = (req, res, next) => {
     logo: Joi.string().allow(''),
     phone: Joi.string().allow('').max(20),
     address: Joi.string().allow('').max(200),
-    payoutInfo: Joi.string().allow('').max(200)
+    payoutInfo: Joi.alternatives().try(Joi.string().allow('').max(1000), Joi.object())
   });
 
   const { error } = schema.validate(req.body);
@@ -25,7 +25,7 @@ export const validateUpdateSellerProfile = (req, res, next) => {
     logo: Joi.string().allow(''),
     phone: Joi.string().allow('').max(20),
     address: Joi.string().allow('').max(200),
-    payoutInfo: Joi.string().allow('').max(200)
+    payoutInfo: Joi.alternatives().try(Joi.string().allow('').max(1000), Joi.object())
   });
 
   const { error } = schema.validate(req.body);

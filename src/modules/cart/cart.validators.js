@@ -21,5 +21,5 @@ export const updateQuantitySchema = Joi.object({
 });
 
 export const mergeCartSchema = Joi.object({
-  guestSessionId: Joi.string().required()
+  guestSessionId: Joi.string().allow('', null).optional()
 });

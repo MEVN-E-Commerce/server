@@ -157,24 +157,15 @@ export const resendVerificationEmail = async (email) => {
   const trimmedEmail = email.toLowerCase().trim();
   const user = await User.findOne({ email: trimmedEmail });
 
-  if (!user) {
-    // Return silently to avoid leaking whether email exists
-    return;
-  }
-
-  if (user.isVerified) {
-    // Already verified, no-op
-    return;
-  }
+  if (!user) return null;       // don't leak existence
+  if (user.isVerified) return null;
 
   const { token, expires } = generateVerificationToken();
   user.emailVerificationToken = token;
   user.emailVerificationExpires = expires;
   await user.save();
 
-  // Log token for CLI retrieval
-  // TODO: send via Nodemailer/queue
-  console.log(`[AUTH] Verification token for ${user.email}: ${token}`);
+  return { email: user.email, name: user.name, token };
 };
 
 /**

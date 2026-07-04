@@ -295,12 +295,12 @@ export const updateOrderStatus = async (req, res, next) => {
 
     await order.save();
 
-    // Enqueue order status update email job
+    // Send order status update email directly
     try {
-      const { enqueueOrderStatusUpdate } = await import('../../queues/email.queue.js');
-      await enqueueOrderStatusUpdate(order._id.toString());
-    } catch (queueErr) {
-      console.error(`[Order Status Update] Failed to enqueue status-update email for Order ${order._id}:`, queueErr);
+      const { sendOrderStatusUpdate } = await import('../../services/email.service.js');
+      await sendOrderStatusUpdate(order._id.toString());
+    } catch (emailErr) {
+      console.error(`[Order Status Update] Failed to send status-update email for Order ${order._id}:`, emailErr);
     }
 
     res.status(200).json({

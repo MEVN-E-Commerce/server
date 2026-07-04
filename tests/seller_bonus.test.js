@@ -1,10 +1,11 @@
 import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 
 // 1. Mock ES modules before importing dependent files
-jest.unstable_mockModule('../src/queues/email.queue.js', () => {
+jest.unstable_mockModule('../src/services/email.service.js', () => {
   return {
-    enqueueOrderConfirmation: jest.fn().mockResolvedValue(true),
-    enqueueOrderStatusUpdate: jest.fn().mockResolvedValue(true)
+    sendOrderConfirmation: jest.fn().mockResolvedValue(true),
+    sendOrderStatusUpdate: jest.fn().mockResolvedValue(true),
+    sendVerificationEmail: jest.fn().mockResolvedValue(true)
   };
 });
 

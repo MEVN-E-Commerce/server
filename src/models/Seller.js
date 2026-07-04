@@ -35,9 +35,8 @@ const sellerSchema = new mongoose.Schema({
     default: ''
   },
   payoutInfo: {
-    type: String,
-    trim: true,
-    default: ''
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
   },
   status: {
     type: String,
@@ -49,19 +48,5 @@ const sellerSchema = new mongoose.Schema({
 });
 
 const Seller = mongoose.model('Seller', sellerSchema);
-
-// Hook to sync User role and status updates to Seller status
-User.schema.post('save', async function (doc) {
-  try {
-    const updatedStatus = doc.sellerStatus;
-    // Update Seller profile status when user status changes
-    await Seller.updateOne(
-      { userId: doc._id },
-      { $set: { status: updatedStatus } }
-    );
-  } catch (err) {
-    console.error('Error syncing User status to Seller profile:', err);
-  }
-});
 
 export default Seller;

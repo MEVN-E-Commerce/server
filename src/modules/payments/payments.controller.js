@@ -104,12 +104,12 @@ export const createCheckoutSession = async (req, res, next) => {
       });
       await order.save();
 
-      // Enqueue the order-confirmation email job
+      // Send order confirmation email directly
       try {
-        const { enqueueOrderConfirmation } = await import('../../queues/email.queue.js');
-        await enqueueOrderConfirmation(order._id.toString());
-      } catch (queueErr) {
-        console.error(`[Payments Controller] Failed to enqueue mock order-confirmation email for Order ${order._id}:`, queueErr);
+        const { sendOrderConfirmation } = await import('../../services/email.service.js');
+        await sendOrderConfirmation(order._id.toString());
+      } catch (emailErr) {
+        console.error(`[Payments Controller] Failed to send mock order-confirmation email for Order ${order._id}:`, emailErr);
       }
 
       const successUrl = `${config.STRIPE_SUCCESS_URL}?session_id=${mockSessionId}&orderId=${order._id}`;
@@ -182,12 +182,12 @@ export const stripeWebhook = async (req, res, next) => {
       await order.save();
       console.log(`[Webhook] Order ${order._id} successfully marked as PAID.`);
 
-      // Enqueue the order-confirmation email job
+      // Send order confirmation email directly
       try {
-        const { enqueueOrderConfirmation } = await import('../../queues/email.queue.js');
-        await enqueueOrderConfirmation(order._id.toString());
-      } catch (queueErr) {
-        console.error(`[Webhook] Failed to enqueue order-confirmation email for Order ${order._id}:`, queueErr);
+        const { sendOrderConfirmation } = await import('../../services/email.service.js');
+        await sendOrderConfirmation(order._id.toString());
+      } catch (emailErr) {
+        console.error(`[Webhook] Failed to send order-confirmation email for Order ${order._id}:`, emailErr);
       }
 
     } else if (

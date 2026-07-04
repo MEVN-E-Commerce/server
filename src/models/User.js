@@ -64,6 +64,20 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Hook to sync User role and status updates to Seller status
+userSchema.post('save', async function (doc) {
+  try {
+    const Seller = mongoose.model('Seller');
+    const updatedStatus = doc.sellerStatus;
+    await Seller.updateOne(
+      { userId: doc._id },
+      { $set: { status: updatedStatus } }
+    );
+  } catch (err) {
+    console.error('Error syncing User status to Seller profile:', err);
+  }
+});
+
 const User = mongoose.model('User', userSchema);
 
 export default User;

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import User from '../models/User.js';
 import Category from '../models/Category.js';
 import Product from '../models/Product.js';
+import Seller from '../models/Seller.js';
 
 // Load environment variables
 dotenv.config();
@@ -65,6 +66,7 @@ const seed = async () => {
     await User.deleteMany({});
     await Category.deleteMany({});
     await Product.deleteMany({});
+    await Seller.deleteMany({});
     console.log('[Seeder] Database cleared.');
 
     // 2. Create Users (Admin, Sellers, Customers)
@@ -155,6 +157,32 @@ const seed = async () => {
     const adminUser = createdUsers.find(u => u.role === 'admin');
     const sellers = createdUsers.filter(u => u.role === 'seller');
     const customers = createdUsers.filter(u => u.role === 'customer');
+
+    // Create corresponding Seller profiles
+    console.log('[Seeder] Creating seller profiles...');
+    const sellerProfiles = [];
+    for (const u of createdUsers) {
+      if (u.role === 'seller') {
+        const profile = await Seller.create({
+          userId: u._id,
+          storeName: u.name === 'Seller Alpha' ? 'Alpha Store' : u.name === 'Seller Beta' ? 'Beta Store' : `${u.name} Shop`,
+          description: `Welcome to ${u.name}'s official store. We sell premium goods and top-tier merchandise.`,
+          phone: '123-456-7890',
+          address: 'Marketplace Plaza, Suite 100',
+          payoutInfo: {
+            method: 'bank',
+            bank: {
+              bankName: 'Chase Bank',
+              holderName: u.name,
+              accountNumber: '1234567890'
+            }
+          },
+          status: u.sellerStatus || 'approved'
+        });
+        sellerProfiles.push(profile);
+      }
+    }
+    console.log(`[Seeder] Created ${sellerProfiles.length} seller profiles.`);
 
     // 3. Fetch Products from DummyJSON
     let apiProducts = [];

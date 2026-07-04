@@ -1,6 +1,7 @@
 import * as authService from "./auth.service.js";
 import jwt from "jsonwebtoken";
 import config from "../../config/env.js";
+import { sendVerificationEmail } from "../../services/email.service.js";
 import User from "../../models/User.js";
 
 /**
@@ -9,24 +10,11 @@ import User from "../../models/User.js";
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const { user, emailVerificationToken } = await authService.registerUser(
-      name,
-      email,
-      password,
-    );
+    const { user, emailVerificationToken } = await authService.registerUser(name, email, password);
 
-    // Log the verification token for local debugging / CLI retrieval
-    // TODO: send via Nodemailer/queue
-    console.log(
-      `[AUTH] Verification token for ${email}: ${emailVerificationToken}`,
-    );
+    await sendVerificationEmail({ email, name: user.name, token: emailVerificationToken });
 
-    res.status(201).json({
-      success: true,
-      message:
-        "Registration successful. Please check your email to verify your account.",
-      user,
-    });
+    res.status(201).json({ success: true, message: "Registration successful. Please check your email to verify your account.", user });
   } catch (err) {
     res.status(err.statusCode || 500);
     next(err);
@@ -149,17 +137,13 @@ export const verifyEmail = async (req, res, next) => {
   }
 };
 
-// Resend email verification token.
-
 export const resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
-    await authService.resendVerificationEmail(email);
+    const result = await authService.resendVerificationEmail(email);
+    if (result) await sendVerificationEmail(result);
 
-    res.status(200).json({
-      success: true,
-      message: "If an account exists, a new verification email has been sent",
-    });
+    res.status(200).json({ success: true, message: "If an account exists, a new verification email has been sent" });
   } catch (err) {
     res.status(err.statusCode || 500);
     next(err);

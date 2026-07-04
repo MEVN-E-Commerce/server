@@ -1,10 +1,11 @@
 import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 
 // 1. Register ES Modules mocks BEFORE importing the app or models
-jest.unstable_mockModule('../src/queues/email.queue.js', () => {
+jest.unstable_mockModule('../src/services/email.service.js', () => {
   return {
-    enqueueOrderConfirmation: jest.fn().mockResolvedValue(true),
-    enqueueOrderStatusUpdate: jest.fn().mockResolvedValue(true)
+    sendOrderConfirmation: jest.fn().mockResolvedValue(true),
+    sendOrderStatusUpdate: jest.fn().mockResolvedValue(true),
+    sendVerificationEmail: jest.fn().mockResolvedValue(true)
   };
 });
 
@@ -45,7 +46,7 @@ const { default: Product } = await import('../src/models/Product.js');
 const { default: Cart } = await import('../src/modules/cart/cart.model.js');
 const { default: Order } = await import('../src/modules/orders/order.model.js');
 const { ORDER_STATUS, PAYMENT_STATUS } = await import('../src/modules/orders/constants.js');
-const emailQueue = await import('../src/queues/email.queue.js');
+const emailService = await import('../src/services/email.service.js');
 const { default: jwt } = await import('jsonwebtoken');
 const { default: config } = await import('../src/config/env.js');
 
@@ -404,25 +405,25 @@ describe('MEVN Marketplace Server Integration Tests', () => {
       expect(freshOrder.paymentStatus).toBe(PAYMENT_STATUS.PAID);
       expect(freshOrder.status).toBe(ORDER_STATUS.PAID);
 
-      // Verify email job is enqueued
-      expect(emailQueue.enqueueOrderConfirmation).toHaveBeenCalledTimes(1);
-      expect(emailQueue.enqueueOrderConfirmation).toHaveBeenCalledWith(order._id.toString());
-
+      // Verify email job is sent directly
+      expect(emailService.sendOrderConfirmation).toHaveBeenCalledTimes(1);
+      expect(emailService.sendOrderConfirmation).toHaveBeenCalledWith(order._id.toString());
+ 
       // Clear spy call counter before second run
-      emailQueue.enqueueOrderConfirmation.mockClear();
-
+      emailService.sendOrderConfirmation.mockClear();
+ 
       // 3. Call webhook second time with identical event
       res = await request(app)
         .post('/api/v1/payments/webhook')
         .set('stripe-signature', 'valid_mock_signature')
         .send(stripeEventPayload);
-
+ 
       expect(res.status).toBe(200);
       expect(res.body.received).toBe(true);
       expect(res.body.duplicate).toBe(true); // Return duplicate: true immediately
-
-      // Verify NO email confirmation is enqueued again
-      expect(emailQueue.enqueueOrderConfirmation).not.toHaveBeenCalled();
+ 
+      // Verify NO email confirmation is sent again
+      expect(emailService.sendOrderConfirmation).not.toHaveBeenCalled();
     });
   });
 
