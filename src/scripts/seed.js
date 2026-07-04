@@ -74,8 +74,24 @@ const seed = async () => {
 
     const usersToCreate = [
       {
-        name: 'Admin User',
+        name: 'Admin User 1',
         email: 'admin@market.com',
+        passwordHash,
+        role: 'admin',
+        isVerified: true,
+        isActive: true
+      },
+      {
+        name: 'Admin User 2',
+        email: 'admin2@market.com',
+        passwordHash,
+        role: 'admin',
+        isVerified: true,
+        isActive: true
+      },
+      {
+        name: 'Admin User 3',
+        email: 'admin3@market.com',
         passwordHash,
         role: 'admin',
         isVerified: true,
@@ -94,6 +110,24 @@ const seed = async () => {
         email: 'seller2@market.com',
         passwordHash,
         role: 'seller',
+        isVerified: true,
+        isActive: true
+      },
+      {
+        name: 'Pending Seller 1',
+        email: 'seller_pending1@market.com',
+        passwordHash,
+        role: 'seller',
+        sellerStatus: 'pending',
+        isVerified: true,
+        isActive: true
+      },
+      {
+        name: 'Pending Seller 2',
+        email: 'seller_pending2@market.com',
+        passwordHash,
+        role: 'seller',
+        sellerStatus: 'pending',
         isVerified: true,
         isActive: true
       },
@@ -191,11 +225,15 @@ const seed = async () => {
     console.log('\n[Seeder] ==========================================');
     console.log('[Seeder] Database seeded successfully!');
     console.log('[Seeder] Credentials for testing:');
-    console.log(' - Admin:      admin@market.com    / password123');
-    console.log(' - Seller A:   seller1@market.com  / password123');
-    console.log(' - Seller B:   seller2@market.com  / password123');
-    console.log(' - Customer A: customer1@market.com/ password123');
-    console.log(' - Customer B: customer2@market.com/ password123');
+    console.log(' - Admin 1:         admin@market.com    / password123');
+    console.log(' - Admin 2:         admin2@market.com   / password123');
+    console.log(' - Admin 3:         admin3@market.com   / password123');
+    console.log(' - Seller A:        seller1@market.com  / password123');
+    console.log(' - Seller B:        seller2@market.com  / password123');
+    console.log(' - Pending Seller 1: seller_pending1@market.com / password123');
+    console.log(' - Pending Seller 2: seller_pending2@market.com / password123');
+    console.log(' - Customer A:      customer1@market.com/ password123');
+    console.log(' - Customer B:      customer2@market.com/ password123');
     console.log('[Seeder] ==========================================\n');
 
   } catch (err) {

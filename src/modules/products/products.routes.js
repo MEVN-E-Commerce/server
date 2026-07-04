@@ -56,4 +56,15 @@ router.post(
   uploadImagesHandler
 );
 
+// Banners public endpoint
+import Banner from '../../models/Banner.js';
+router.get('/banners', async (req, res, next) => {
+  try {
+    const banners = await Banner.find({ isActive: true }).sort({ sortOrder: 1, createdAt: -1 }).lean();
+    res.status(200).json({ success: true, banners });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
