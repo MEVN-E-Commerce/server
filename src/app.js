@@ -3,6 +3,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes.js';
 import productsRouter from './modules/products/products.routes.js';
+import cartRouter from './modules/cart/cart.routes.js';
+import orderRouter from './modules/orders/order.routes.js';
+import paymentsRouter from './modules/payments/payments.routes.js';
+import { stripeWebhook } from './modules/payments/payments.controller.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -13,11 +17,18 @@ app.use(cors({
   credentials: true
 }));
 app.use(cookieParser());
+
+// Webhook route must be mounted before express.json()
+app.post('/api/v1/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json());
 
 // Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', productsRouter);
+app.use('/api/v1/cart', cartRouter);
+app.use('/api/v1/orders', orderRouter);
+app.use('/api/v1/payments', paymentsRouter);
 
 
 // Health check route
